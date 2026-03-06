@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 import './elite.css';
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL.replace('/v1', '')}/strada`;
+import { API_BASE as GLOBAL_API_BASE } from '../../config';
+const API_BASE = `${GLOBAL_API_BASE.replace('/v1', '')}/strada`;
 
 const SystemStatus: React.FC = () => {
     const [health, setHealth] = useState<any>(null);

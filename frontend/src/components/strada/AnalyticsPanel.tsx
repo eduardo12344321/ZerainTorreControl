@@ -6,7 +6,8 @@ import { SpeedChart, MileageChart, CraneTimeline, TachographBar } from './Charts
 import './elite.css';
 import type { Vehicle, VehicleData, OdometerPoint } from './types';
 
-const API_BASE = `${import.meta.env.VITE_API_BASE_URL.replace('/v1', '')}/strada`;
+import { API_BASE as GLOBAL_API_BASE } from '../../config';
+const API_BASE = `${GLOBAL_API_BASE.replace('/v1', '')}/strada`;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const durationMin = (begin: string, end: string, dayStr?: string) => {
