@@ -19,6 +19,8 @@ test_enc.db
 !torre-control-zerain-*.json
 !frontend/package.json
 !frontend/tsconfig.json
+!frontend/tsconfig.app.json
+!frontend/tsconfig.node.json
 !frontend/package-lock.json
 
 # Local artifacts
