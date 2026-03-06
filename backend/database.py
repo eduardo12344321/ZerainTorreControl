@@ -41,6 +41,8 @@ class DatabaseManager:
             return conn
         else:
             conn = sqlite3.connect(self.db_path)
+            # Enable WAL mode for better concurrency
+            conn.execute("PRAGMA journal_mode=WAL")
             if USING_CIPHER:
                 conn.execute(f"PRAGMA key = '{self.encryption_key}'")
             conn.row_factory = sqlite3.Row
