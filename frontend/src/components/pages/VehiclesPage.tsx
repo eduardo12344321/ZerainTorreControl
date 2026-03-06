@@ -22,6 +22,9 @@ export const VehiclesPage: React.FC = () => {
         warning_pct: systemConfig.maintenance_warning_pct || '90'
     });
 
+    // Accurate Strada Maintenance KM
+    const [maintenanceKms, setMaintenanceKms] = useState<Record<string, { oil_km: number, tire_km: number }>>({});
+
     // Update local config when global config loads
     useEffect(() => {
         setConfigEditing({
@@ -30,6 +33,29 @@ export const VehiclesPage: React.FC = () => {
             warning_pct: systemConfig.maintenance_warning_pct || '90'
         });
     }, [systemConfig]);
+
+    // Fetch accurate KM from Strada for each truck with maintenance dates
+    useEffect(() => {
+        if (trucks.length === 0) return;
+
+        const STRADA_API = `${import.meta.env.VITE_API_BASE_URL.replace('/v1', '')}/api/strada`;
+        const payload = trucks.map(t => ({
+            plate: t.plate,
+            oil_date: t.last_oil_change,
+            tire_date: t.last_tire_change
+        })).filter(p => p.oil_date || p.tire_date);
+
+        if (payload.length === 0) return;
+
+        fetch(`${STRADA_API}/fleet/maintenance-stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(r => r.json())
+            .then(data => setMaintenanceKms(data))
+            .catch(console.error);
+    }, [trucks]);
 
     const handleConfigSave = () => {
         updateSystemConfig({
@@ -41,9 +67,8 @@ export const VehiclesPage: React.FC = () => {
 
     // Helper to check if maintenance is critical
     const checkMaintenanceCritical = (truck: Truck, type: 'OIL' | 'TIRES') => {
-        const odometer = truck.odometer || 0;
-        const lastKm = type === 'OIL' ? (truck.last_oil_change_km || 0) : (truck.last_tire_change_km || 0);
-        const diff = odometer - lastKm;
+        const stats = maintenanceKms[truck.plate] || { oil_km: 0, tire_km: 0 };
+        const diff = type === 'OIL' ? stats.oil_km : stats.tire_km;
 
         const threshold = type === 'OIL'
             ? parseInt(systemConfig.maintenance_oil_km || '30000')
@@ -52,10 +77,10 @@ export const VehiclesPage: React.FC = () => {
         const warningPct = parseInt(systemConfig.maintenance_warning_pct || '90') / 100;
 
         return {
-            kmSince: diff,
+            kmSince: Math.round(diff),
             isWarning: diff >= threshold * warningPct,
             isCritical: diff >= threshold,
-            pct: Math.round((diff / threshold) * 100)
+            pct: Math.min(100, Math.round((diff / threshold) * 100))
         };
     };
 

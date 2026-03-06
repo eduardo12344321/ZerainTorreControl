@@ -132,49 +132,56 @@ const RouteMap: React.FC<{ route: { latitude: number; longitude: number; timesta
 
 // ─── Reverse Geocoding Label ──────────────────────────────────────────────────
 const NominatimLocation: React.FC<{ lat: number; lng: number; fallback: string }> = ({ lat, lng, fallback }) => {
-    const [address, setAddress] = useState<string | null>(null);
+    const [address, setAddress] = useState<string>('');
+    const [loading, setLoading] = useState(false);
+    const cacheKey = `geo_${lat.toFixed(4)}_${lng.toFixed(4)}`;
 
     useEffect(() => {
-        if (!lat || !lng) return;
-        const cacheKey = `geo_${lat.toFixed(4)}_${lng.toFixed(4)}`;
         const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            setAddress(cached);
-            return;
-        }
+        if (cached) setAddress(cached);
+    }, [cacheKey]);
 
-        // Delay slightly to prevent slamming Nominatim instantly unconditionally
-        const timer = setTimeout(() => {
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`, {
-                headers: {
-                    'User-Agent': 'ZerainTowerControl/1.0',
-                    'Accept-Language': 'es-ES,es;q=0.9'
+    const fetchAddress = () => {
+        if (!lat || !lng || loading) return;
+        setLoading(true);
+
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`, {
+            headers: {
+                'User-Agent': 'ZerainTowerControl/1.0',
+                'Accept-Language': 'es-ES,es;q=0.9'
+            }
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.address) {
+                    const parts = [];
+                    if (data.address.road) parts.push(data.address.road);
+                    const city = data.address.city || data.address.town || data.address.village || data.address.municipality;
+                    if (city) parts.push(city);
+                    const str = parts.join(', ') || data.display_name?.split(',').slice(0, 2).join(',') || fallback;
+                    setAddress(str);
+                    sessionStorage.setItem(cacheKey, str);
+                } else {
+                    setAddress(fallback);
                 }
             })
-                .then(r => r.json())
-                .then(data => {
-                    if (data && data.address) {
-                        const parts = [];
-                        if (data.address.road) parts.push(data.address.road);
-                        const city = data.address.city || data.address.town || data.address.village || data.address.municipality;
-                        if (city) parts.push(city);
-                        const str = parts.join(', ') || data.display_name?.split(',').slice(0, 2).join(',') || fallback;
-                        setAddress(str);
-                        sessionStorage.setItem(cacheKey, str);
-                    } else {
-                        setAddress(fallback);
-                    }
-                })
-                .catch(e => {
-                    console.error('Geocode error:', e);
-                    setAddress(fallback);
-                });
-        }, 300);
+            .catch(e => {
+                console.error('Geocode error:', e);
+                setAddress(fallback);
+            })
+            .finally(() => setLoading(false));
+    };
 
-        return () => clearTimeout(timer);
-    }, [lat, lng, fallback]);
+    if (address) return <span className="font-medium text-gray-700">{address}</span>;
 
-    return <>{address || fallback}</>;
+    return (
+        <button
+            onClick={(e) => { e.stopPropagation(); fetchAddress(); }}
+            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded transition-all flex items-center gap-1 ${loading ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}
+        >
+            {loading ? '⏳...' : '📍 Ver Dirección'}
+        </button>
+    );
 };
 
 // ─── Analytics Panel ──────────────────────────────────────────────────────────

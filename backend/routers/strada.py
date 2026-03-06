@@ -90,6 +90,80 @@ def get_vehicle_odometer_at_date(plate: str, date: str):
     conn.close()
     return {"plate": plate, "target_date": date, "odometer": km, "found_at": str(found_at)}
 
+@router.get("/vehicle/{plate}/km-since-date")
+def get_km_since_date(plate: str, start_date: str):
+    """Calculates accumulated distance since a specific date using Odometer FMS if possible, falling back to Haversine."""
+    if not start_date:
+        return {"km": 0.0, "method": "none"}
+    
+    db_plate = _clean_plate(plate)
+    conn = get_db_conn()
+    with get_cursor(conn) as cursor:
+        from database_strada import IS_POSTGRES
+        placeholder = "%s" if IS_POSTGRES else "?"
+        
+        # 1. Try to get Odometer difference (Highly accurate & efficient)
+        # Get latest odometer
+        cursor.execute(f"SELECT odometer FROM activities WHERE plate = {placeholder} AND odometer > 0 ORDER BY begin DESC LIMIT 1", (db_plate,))
+        row_late = cursor.fetchone()
+        
+        # Get odometer at start date
+        search_ts = f"{start_date} 00:00:00"
+        cursor.execute(f"SELECT odometer FROM activities WHERE plate = {placeholder} AND begin >= {placeholder} AND odometer > 0 ORDER BY begin ASC LIMIT 1", (db_plate, search_ts))
+        row_start = cursor.fetchone()
+        
+        if row_late and row_start:
+            try:
+                if IS_POSTGRES:
+                    k1, k2 = row_start.get('odometer', 0), row_late.get('odometer', 0)
+                else:
+                    k1, k2 = row_start[0], row_late[0]
+                
+                if k2 > k1:
+                    conn.close()
+                    return {"plate": plate, "km": round(k2 - k1, 1), "method": "fms_odometer"}
+            except: pass
+
+        # 2. Fallback: Sum GPS positions (Haversine)
+        cursor.execute(f'''
+            SELECT latitude, longitude FROM positions
+            WHERE plate = {placeholder} AND timestamp >= {placeholder}
+            ORDER BY timestamp ASC
+        ''', (db_plate, search_ts))
+        
+        positions = cursor.fetchall()
+        km = _sum_km(positions)
+        
+    conn.close()
+    return {
+        "plate": plate,
+        "start_date": start_date,
+        "km": round(km, 2),
+        "method": "gps_haversine",
+        "found_records": len(positions)
+    }
+
+@router.post("/fleet/maintenance-stats")
+async def get_maintenance_stats(vehicles: List[Dict[str, Any]]):
+    """
+    Takes a list of {plate, oil_date, tire_date} and returns accumulated KM for each.
+    This allows bulk updates of the vehicle cards in one request.
+    """
+    results = {}
+    for v in vehicles:
+        plate = v.get('plate')
+        oil_date = v.get('oil_date')
+        tire_date = v.get('tire_date')
+        
+        res = {"oil_km": 0.0, "tire_km": 0.0}
+        if plate:
+            if oil_date:
+                res["oil_km"] = get_km_since_date(plate, oil_date[:10])["km"]
+            if tire_date:
+                res["tire_km"] = get_km_since_date(plate, tire_date[:10])["km"]
+        results[plate] = res
+    return results
+
 @router.get("/fleet/status")
 def get_fleet_status(date: Optional[str] = None):
     if not date:
