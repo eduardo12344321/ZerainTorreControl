@@ -257,6 +257,76 @@ def setup():
         )
     """)
 
+    # 12. Attendance Log Table
+    c.execute(f"""
+        CREATE TABLE IF NOT EXISTS attendance_log (
+            id {pk_type},
+            driver_id TEXT NOT NULL,
+            type TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            approved INTEGER DEFAULT 0,
+            admin_modified INTEGER DEFAULT 0
+        )
+    """)
+
+    # 13. Attendance Overrides Table
+    c.execute(f"""
+        CREATE TABLE IF NOT EXISTS attendance_overrides (
+            id {pk_type},
+            driver_id TEXT NOT NULL,
+            date TEXT NOT NULL,
+            regular_hours REAL,
+            overtime_hours REAL,
+            diet_count INTEGER,
+            status INTEGER DEFAULT 0,
+            admin_comment TEXT,
+            updated_at {ts_type} DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(driver_id, date)
+        )
+    """)
+
+    # 14. Expenses Table
+    c.execute(f"""
+        CREATE TABLE IF NOT EXISTS expenses (
+            id {pk_type},
+            driver_id TEXT NOT NULL,
+            date TEXT NOT NULL,
+            amount REAL NOT NULL,
+            type TEXT NOT NULL,
+            description TEXT,
+            ticket_url TEXT,
+            approved INTEGER DEFAULT 0,
+            timestamp {ts_type} DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 15. Leaves Table
+    c.execute(f"""
+        CREATE TABLE IF NOT EXISTS leaves (
+            id {pk_type},
+            driver_id TEXT NOT NULL,
+            type TEXT NOT NULL,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            approved INTEGER DEFAULT 0,
+            timestamp {ts_type} DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 16. Audit Logs Table
+    c.execute(f"""
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id {pk_type},
+            admin_username TEXT,
+            action TEXT,
+            table_name TEXT,
+            record_id TEXT,
+            details TEXT,
+            ip_address TEXT,
+            timestamp {ts_type} DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     # Helper for Upsert
     def universal_upsert(table, data, pks):
         if not data: return

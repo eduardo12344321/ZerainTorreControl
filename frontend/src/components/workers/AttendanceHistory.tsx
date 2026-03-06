@@ -21,10 +21,18 @@ export const AttendanceHistory: React.FC<AttendanceHistoryProps> = ({ driverId }
     const fetchAttendance = async () => {
         try {
             const response = await apiFetch(`/drivers/${driverId}/attendance`);
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
             const data = await response.json();
-            setRecords(prev => JSON.stringify(prev) === JSON.stringify(data) ? prev : data);
+
+            if (Array.isArray(data)) {
+                setRecords(prev => JSON.stringify(prev) === JSON.stringify(data) ? prev : data);
+            } else {
+                console.error('Attendance data is not an array:', data);
+                setRecords([]);
+            }
         } catch (error) {
             console.error('Error fetching attendance:', error);
+            setRecords([]);
         } finally {
             setLoading(false);
         }
