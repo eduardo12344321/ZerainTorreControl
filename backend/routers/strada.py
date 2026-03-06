@@ -612,10 +612,10 @@ def get_system_health():
             "total_vehicles": total_vehicles,
             "total_positions": total_positions,
             "total_activities": total_activities,
-            "first_record": str(first_record) if first_record else None,
-            "last_sync": str(last_sync) if last_sync else None,
+            "first_record": first_record.isoformat() if hasattr(first_record, 'isoformat') else first_record,
+            "last_sync": last_sync.isoformat() if hasattr(last_sync, 'isoformat') else last_sync,
             "db_size_mb": db_size_mb,
-            "last_miner_run": str(strada_miner.last_heartbeat) if hasattr(strada_miner, 'last_heartbeat') else None,
+            "last_miner_run": strada_miner.last_heartbeat.isoformat() if hasattr(strada_miner, 'last_heartbeat') and hasattr(strada_miner.last_heartbeat, 'isoformat') else None,
             "db_path_checked": REAL_DB_PATH,
             "status": "ok"
         }

@@ -185,10 +185,10 @@ class StradaMiner:
                     key = self.fleet_map.get(plate)
                     if key:
                         self.fetch_vehicle_data(plate, key, date_str, date_str)
-                        time.sleep(1) # Be gentle with Strada API on historic
+                        time.sleep(2) # Even gentler
             
             current_date -= timedelta(days=1)
-            time.sleep(0.1)
+            time.sleep(1) # Sleep between days even if no gap
             
         conn.close()
         print("[StradaMiner GapFiller] Verificación de huecos completada.")
