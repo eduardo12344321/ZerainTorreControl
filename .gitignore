@@ -28,7 +28,10 @@ yarn-error.log*
 # Deploy & Secrets
 *.json
 !package.json
+!package-lock.json
 !tsconfig.json
+!tsconfig.app.json
+!tsconfig.node.json
 !manifest.json
 !composer.json
 *.key
