@@ -146,7 +146,10 @@ const NominatimLocation: React.FC<{ lat: number; lng: number; fallback: string }
         // Delay slightly to prevent slamming Nominatim instantly unconditionally
         const timer = setTimeout(() => {
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`, {
-                headers: { 'Accept-Language': 'es-ES,es;q=0.9' }
+                headers: {
+                    'User-Agent': 'ZerainTowerControl/1.0',
+                    'Accept-Language': 'es-ES,es;q=0.9'
+                }
             })
                 .then(r => r.json())
                 .then(data => {

@@ -56,7 +56,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         setIsLoading(true);
         try {
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=es`
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=es`,
+                {
+                    headers: {
+                        'User-Agent': 'ZerainTowerControl/1.0',
+                        'Accept-Language': 'es-ES,es;q=0.9'
+                    }
+                }
             );
             const data = await response.json();
             setSuggestions(data);
