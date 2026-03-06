@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Torre de Control Zerain</string>
+    <string name="title_activity_main">Torre de Control Zerain</string>
+    <string name="package_name">com.zerain.driverapp</string>
+    <string name="custom_url_scheme">com.zerain.driverapp</string>
+</resources>

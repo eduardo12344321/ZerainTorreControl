@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  torre:
+    restart: unless-stopped
+    environment:
+      DATABASE_PATH: /app/data/zerain.db
+      ODOO_URL: http://odoo:8069
+      ODOO_DB: zerain
+      ODOO_USER: ${ODOO_EMAIL}
+      ODOO_PASSWORD: ${ODOO_API_KEY}
+      PORT: 8080
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+    volumes:
+      - ./torre/data:/app/data
+    networks:
+      - zerain-net
+
+networks:
+  zerain-net:
+    external: true
+    name: zerain-infra_zerain-net

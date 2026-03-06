@@ -1,0 +1,30 @@
+# Root .dockerignore
+**/__pycache__
+**/*.pyc
+**/*.log
+**/.git
+# **/.env
+**/node_modules
+**/dist
+
+# Local Databases - DO NOT UPLOAD
+zerain.db
+backend/zerain.db
+database.db
+backend/database.db
+test_enc.db
+
+# sensitive files
+*.json
+!torre-control-zerain-*.json
+!frontend/package.json
+!frontend/tsconfig.json
+!frontend/package-lock.json
+
+# Local artifacts
+.agent/
+.gemini/
+brain/
+*.md
+!README.md
+!walkthrough.md

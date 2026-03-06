@@ -1,0 +1,80 @@
+networks:
+  zerain-net:
+    driver: bridge
+
+services:
+  # --- EL PORTERO ---
+  proxy:
+    container_name: zerain_proxy
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - zerain-net
+
+  # --- LA TORRE (Tu API Python) ---
+  torre:
+    container_name: zerain_torre
+    image: gcr.io/zerain-web-2026/torre-app:latest
+    restart: always
+    environment:
+      - GOOGLE_MAPS_API_KEY=AIzaSyC9NVCjtc1lIqFyzK0rl_MXqVMoNLcnn6s
+      - PROJECT_ID=zerain-web-2026
+      - DATABASE_URL=postgresql://odoo:odoo@db_shared:5432/postgres
+      - ODOO_URL=http://odoo:8069
+      - ODOO_DB=zerain_2026
+      - ODOO_EMAIL=transporteszerain@gmail.com
+      - ODOO_PASSWORD=TorreControl2026!
+      - SECRET_KEY=zerain_super_secret_key_change_in_production
+      - DB_ENCRYPTION_KEY=zerain_encryption_key_2026
+      - ADMIN_PASSWORD=Zerain2026!
+      - GOOGLE_CLIENT_ID=850348967008-9ssurj54a99n57pch81q1aqvpagee48e.apps.googleusercontent.com
+    volumes:
+      - ./torre_data:/app/data
+    networks:
+      - zerain-net
+
+  # --- WORDPRESS Y SU DB ---
+  db_wp:
+    container_name: zerain_db_wp
+    image: mariadb:10.6
+    restart: always
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=zerain_user
+      - MYSQL_PASSWORD=password_segura_wp
+      - MYSQL_ROOT_PASSWORD=password_muy_segura_root
+    volumes:
+      - zerain-infra_db_wp_data:/var/lib/mysql
+    networks:
+      - zerain-net
+
+  wordpress:
+    container_name: zerain_wordpress
+    image: wordpress:latest
+    restart: always
+    depends_on:
+      - db_wp
+    environment:
+      - WORDPRESS_DB_HOST=db_wp
+      - WORDPRESS_DB_USER=zerain_user
+      - WORDPRESS_DB_PASSWORD=password_segura_wp
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - zerain-infra_wordpress_data:/var/www/html
+    networks:
+      - zerain-net
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+  zerain-infra_db_wp_data:
+    external: true
+  zerain-infra_wordpress_data:
+    external: true

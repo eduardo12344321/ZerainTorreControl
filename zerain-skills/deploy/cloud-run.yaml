@@ -1,0 +1,14 @@
+# Google Cloud Run Deployment
+
+Configuración base para el despliegue seguro en GCP.
+
+```yaml
+# cloud-run.yaml placeholder
+metadata:
+  name: zerain-backend
+spec:
+  template:
+    spec:
+      containers:
+      - image: gcr.io/PROJECT_ID/zerain-backend
+```

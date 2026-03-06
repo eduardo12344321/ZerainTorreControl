@@ -1,0 +1,369 @@
+/* ============================================
+   ZERAIN FLEET COMMAND - ELITE V2 DESIGN SYSTEM
+   ============================================ */
+
+/* Design Tokens - scoped to :root so all strada components inherit them */
+:root {
+    /* Color Palette - Vibrant & Elegant */
+    --emerald-glow: #10b981;
+    --electric-blue: #3b82f6;
+    --sunset-orange: #f97316;
+    --ruby-red: #ef4444;
+    --deep-space: #0a0e1a;
+    --space-lighter: #1a1f35;
+
+    /* New/Updated Base Colors */
+    --bg-dark: #0a0e1a;
+    --bg-panel: rgba(255, 255, 255, 0.03);
+    --border-panel: rgba(255, 255, 255, 0.08);
+
+    /* Glassmorphism */
+    --glass-surface: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    /* New glass shadow */
+
+    /* Text Colors */
+    --text-primary: #e6f1ff;
+    --text-secondary: #8892b0;
+    --text-dim: #475569;
+    /* Updated text-dim */
+
+    /* Shadows */
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.3);
+    --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+    --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.3);
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* Global Styles Scoped */
+.strada-container {
+    font-family: var(--font-primary);
+    background-color: var(--deep-space);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================
+   GLASSMORPHISM COMPONENTS
+   ============================================ */
+
+.glass-panel {
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-glass);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+    background: var(--glass-hover);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.glass-panel-sm {
+    background: var(--glass-surface);
+    backdrop-filter: blur(15px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   BADGE COMPONENTS
+   ============================================ */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.badge-driving {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--emerald-glow);
+    border: 1px solid var(--emerald-glow);
+    box-shadow: var(--shadow-glow-emerald);
+}
+
+.badge-resting {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--text-dim);
+    border: 1px solid var(--text-dim);
+}
+
+.badge-crane {
+    background: rgba(249, 115, 22, 0.15);
+    color: var(--sunset-orange);
+    border: 1px solid var(--sunset-orange);
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+}
+
+.badge-working {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--electric-blue);
+    border: 1px solid var(--electric-blue);
+    box-shadow: var(--shadow-glow-blue);
+}
+
+.badge-alert {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--ruby-red);
+    border: 1px solid var(--ruby-red);
+    box-shadow: var(--shadow-glow-red);
+    animation: pulse-alert 2s infinite;
+}
+
+@keyframes pulse-alert {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ============================================
+   GAUGE COMPONENT (Speedometer)
+   ============================================ */
+
+.gauge-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.gauge-circle {
+    transform: rotate(-90deg);
+}
+
+.gauge-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 8;
+}
+
+.gauge-progress {
+    fill: none;
+    stroke: var(--electric-blue);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+    filter: drop-shadow(0 0 8px var(--electric-blue));
+}
+
+.gauge-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.gauge-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   FLOATING TELEMETRY BUBBLE
+   ============================================ */
+
+.telemetry-bubble {
+    background: rgba(11, 14, 20, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    min-width: 200px;
+    pointer-events: auto;
+}
+
+.telemetry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.telemetry-plate {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.telemetry-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.telemetry-stat {
+    text-align: center;
+}
+
+.telemetry-stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+}
+
+.telemetry-stat-label {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* ============================================
+   TABS NAVIGATION
+   ============================================ */
+
+.tabs-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: var(--space-lighter);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.tab-button {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background: var(--glass-surface);
+    color: var(--text-primary);
+}
+
+.tab-button.active {
+    background: var(--glass-surface);
+    border-color: var(--electric-blue);
+    color: var(--electric-blue);
+    box-shadow: var(--shadow-glow-blue);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-emerald {
+    color: var(--emerald-glow);
+}
+
+.text-blue {
+    color: var(--electric-blue);
+}
+
+.text-orange {
+    color: var(--sunset-orange);
+}
+
+.text-red {
+    color: var(--ruby-red);
+}
+
+.glow-emerald {
+    box-shadow: var(--shadow-glow-emerald);
+}
+
+.glow-blue {
+    box-shadow: var(--shadow-glow-blue);
+}
+
+.glow-red {
+    box-shadow: var(--shadow-glow-red);
+}
+
+.font-mono {
+    font-family: var(--font-mono);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+}

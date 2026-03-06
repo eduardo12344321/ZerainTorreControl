@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.env
+backend/zerain.db
+backend/strada_cache.db
+zerain.db
+strada_cache.db
+*.db
+.venv/
+env/
+venv/
+ENV/
+
+# Node / React
+node_modules/
+dist/
+build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Deploy & Secrets
+*.json
+!package.json
+!tsconfig.json
+!manifest.json
+!composer.json
+*.key
+*.pem
+*.pfx
+.env
+.env*
+torre-control-zerain-*.json
+client_secret_*.json
+
+# Logs & Temporary
+*.log
+*.tmp
+*.zip
+*.rar
+*.7z
+release_candidate.zip
+source.zip
+deploy_staging/
+deploy_log.txt
+deploy_log2.txt
+cleanup_log.txt
+debug_output.txt
+geocode_*.txt
+*.txt
+*.kml
+
+# Project specific temporary/scratch
+*.xlsx
+clientes/
+cosas/
+SYNERGY_DATOS/
+sandbox/
+*.bak
+*.old
+*.sh
+!remote_rebuild.sh
+!remote_rebuild2.sh
+!remote_rebuild3.sh
+*.bat
+invoice_analyzer/
+
+# Root level script hygiene (too many one-off scripts)
+/*.py
+!/backend/
+!/frontend/
+# Core maintenance scripts at root
+!sync_odoo.py
+!sync_employees.py
+!sync_customers.py
+!sync_locations.py
+!add_tables.py
+
+# OS
+.DS_Store
+Thumbs.db

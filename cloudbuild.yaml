@@ -1,0 +1,49 @@
+steps:
+  # Build the container image using the Docker builder
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_GOOGLE_MAPS_API_KEY=${_VITE_GOOGLE_MAPS_API_KEY}'
+      - '--build-arg'
+      - 'VITE_GOOGLE_CLIENT_ID=${_VITE_GOOGLE_CLIENT_ID}'
+      - '--build-arg'
+      - 'VITE_API_BASE_URL=${_VITE_API_BASE_URL}'
+      - '-t'
+      - '$_IMAGE_TAG'
+      - '.'
+
+  # Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '$_IMAGE_TAG']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'zerain-backend'
+      - '--image=$_IMAGE_TAG'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--min-instances=1'
+      - '--no-cpu-throttling'
+      # Note: Environ vars here are for the RUNTIME, distinct from build-args
+      - '--set-env-vars=DATABASE_PATH=/app/data/zerain.db,GCP_PROJECT_ID=$PROJECT_ID,GOOGLE_CLIENT_ID=${_VITE_GOOGLE_CLIENT_ID},USE_SQLCIPHER=false,GEMINI_API_KEY=${_GEMINI_API_KEY},SECRET_KEY=${_SECRET_KEY},DB_ENCRYPTION_KEY=${_DB_ENCRYPTION_KEY}'
+      - '--add-volume=name=zerain-data,type=cloud-storage,bucket=$PROJECT_ID-data'
+      - '--add-volume-mount=volume=zerain-data,mount-path=/app/data'
+
+substitutions:
+  _VITE_GOOGLE_MAPS_API_KEY: ''
+  _VITE_GOOGLE_CLIENT_ID: ''
+  _VITE_API_BASE_URL: ''
+  _REGION: 'europe-west1'
+  _IMAGE_TAG: 'latest'
+  _GEMINI_API_KEY: ''
+  _SECRET_KEY: ''
+  _DB_ENCRYPTION_KEY: ''
+
+images:
+  - '$_IMAGE_TAG'

@@ -1,0 +1,24 @@
+FROM odoo:16.0
+
+USER root
+
+# Install system dependencies and pip
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libffi-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python modules required by custom addons
+RUN pip3 install --no-cache-dir \
+    xmlsig \
+    xmltodict \
+    pyopenssl \
+    cryptography \
+    requests
+
+USER odoo

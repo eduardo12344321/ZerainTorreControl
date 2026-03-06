@@ -1,0 +1,66 @@
+networks:
+  zerain-net:
+    driver: bridge
+
+services:
+  proxy:
+    container_name: zerain_proxy
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - zerain-net
+
+  torre:
+    container_name: zerain_torre
+    image: gcr.io/zerain-web-2026/torre-app:latest
+    restart: always
+    env_file: .env
+    volumes:
+      - ./torre_data:/app/data
+    networks:
+      - zerain-net
+
+  db_wp:
+    container_name: zerain_db_wp
+    image: mariadb:10.6
+    restart: always
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=zerain_user
+      - MYSQL_PASSWORD=password_segura_wp
+      - MYSQL_ROOT_PASSWORD=password_muy_segura_root
+    volumes:
+      - zerain-infra_db_wp_data:/var/lib/mysql
+    networks:
+      - zerain-net
+
+  wordpress:
+    container_name: zerain_wordpress
+    image: wordpress:latest
+    restart: always
+    depends_on:
+      - db_wp
+    environment:
+      - WORDPRESS_DB_HOST=db_wp
+      - WORDPRESS_DB_USER=zerain_user
+      - WORDPRESS_DB_PASSWORD=password_segura_wp
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - zerain-infra_wordpress_data:/var/www/html
+    networks:
+      - zerain-net
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+  zerain-infra_db_wp_data:
+    external: true
+  zerain-infra_wordpress_data:
+    external: true

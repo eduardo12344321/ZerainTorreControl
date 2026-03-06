@@ -1,0 +1,75 @@
+networks:
+  zerain-net:
+    driver: bridge
+services:
+  proxy:
+    container_name: zerain_proxy
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - 80:80
+      - 81:81
+      - 443:443
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    networks:
+      - zerain-net
+  torre:
+    container_name: zerain_torre
+    image: gcr.io/zerain-web-2026/torre-app:latest
+    restart: always
+    environment:
+      - GOOGLE_MAPS_API_KEY=AIzaSyC9NVCjtc1lIqFyzK0rl_MXqVMoNLcnn6s
+      - PROJECT_ID=zerain-web-2026
+    networks:
+      - zerain-net
+  db_wp:
+    container_name: zerain_db_wp
+    image: mariadb:10.6
+    restart: always
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=zerain_user
+      - MYSQL_PASSWORD=password_segura_wp
+      - MYSQL_ROOT_PASSWORD=password_muy_segura_root
+    volumes:
+      - zerain-infra_db_wp_data:/var/lib/mysql
+    networks:
+      - zerain-net
+  wordpress:
+    container_name: zerain_wordpress
+    image: wordpress:latest
+    restart: always
+    depends_on:
+      - db_wp
+    environment:
+      - WORDPRESS_DB_HOST=db_wp
+      - WORDPRESS_DB_USER=zerain_user
+      - WORDPRESS_DB_PASSWORD=password_segura_wp
+      - WORDPRESS_DB_NAME=wordpress
+    volumes:
+      - zerain-infra_wordpress_data:/var/www/html
+    networks:
+      - zerain-net
+  enrichment:
+    container_name: zerain_enrichment
+    image: gcr.io/zerain-web-2026/torre-app:latest
+    restart: always
+    environment:
+      - GOOGLE_MAPS_API_KEY=AIzaSyC9NVCjtc1lIqFyzK0rl_MXqVMoNLcnn6s
+      - GEMINI_API_KEY=AIzaSyAid96mNT86KVza-KUO9QEk1qPaLj7zULY
+      - ODOO_URL=https://transporteszerain.odoo.com
+      - ODOO_DB=transporteszerain
+      - ODOO_EMAIL=transporteszerain@gmail.com
+      - ODOO_API_KEY=6248e2be88ebb2f1a0bda2957384005948a9b759
+    command: python backend/ai_enrich_background.py
+    networks:
+      - zerain-net
+volumes:
+  npm_data: null
+  npm_letsencrypt: null
+  zerain-infra_db_wp_data:
+    external: true
+  zerain-infra_wordpress_data:
+    external: true
